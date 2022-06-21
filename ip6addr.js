@@ -245,7 +245,7 @@ Addr.prototype.toBuffer = function toBuffer(buf) {
       throw new Error('optional arg must be Buffer');
     }
   } else {
-    buf = new Buffer(16);
+    buf = Buffer.alloc(16);
   }
   var i;
   for (i = 0; i < 8; i++) {
@@ -496,7 +496,9 @@ AddrRange.prototype.last = function addrRangeLast() {
 ///--- Public Functions
 
 function ip6addrParse(input) {
-  if (typeof (input) === 'string') {
+  if (Buffer.isBuffer(input)) {
+    return parseBuffer(input);
+  } else if (typeof (input) === 'string') {
     return parseString(input);
   } else if (typeof (input) === 'number') {
     return parseLong(input);
@@ -505,6 +507,20 @@ function ip6addrParse(input) {
   } else {
     throw new Error('Invalid argument: only string|number allowed');
   }
+}
+
+function parseBuffer(input) {
+  const addr = new Addr();
+  addr._fields[0] = input.readUInt16BE(0);
+  addr._fields[1] = input.readUInt16BE(2);
+  addr._fields[2] = input.readUInt16BE(4);
+  addr._fields[3] = input.readUInt16BE(6);
+  addr._fields[4] = input.readUInt16BE(8);
+  addr._fields[5] = input.readUInt16BE(10);
+  addr._fields[6] = input.readUInt16BE(12);
+  addr._fields[7] = input.readUInt16BE(14);
+  
+  return addr;
 }
 
 function parseString(input) {
@@ -706,6 +722,7 @@ function ip6addrCompare(a, b) {
 
 module.exports = {
   parse: ip6addrParse,
+  addrClass: Addr,
   compare: ip6addrCompare,
   createCIDR: function (addr, len) {
     return new CIDR(addr, len);
