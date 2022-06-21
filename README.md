@@ -1,3 +1,5 @@
+# Fork Info
+This is a fork of [ip6addr](https://github.com/TritonDataCenter/node-ip6addr), this fork intends to add support for parsing buffers.
 # ip6addr
 
 ip6addr is a small library for manipulating IP addresses in JavaScript.
